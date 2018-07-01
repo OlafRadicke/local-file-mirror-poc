@@ -1,0 +1,8 @@
+---
+- hosts: mirrors-server
+  roles:
+    - sync_mirror
+
+- hosts: mirror-client
+  roles:
+    - update_mirror_client

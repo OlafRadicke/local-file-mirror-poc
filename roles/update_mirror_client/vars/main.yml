@@ -1,0 +1,9 @@
+---
+base_dir: "/srv/mirrors"
+mirrors:
+  - name: "centos-7"
+    mirror_dir: "/centos/7/os/x86_64/"
+    mirror_key: "/centos"
+  - name: "epel"
+    mirror_dir: "/epel/7/x86_64"
+    mirror_key: "/epel"

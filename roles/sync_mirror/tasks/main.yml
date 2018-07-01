@@ -1,0 +1,53 @@
+---
+
+- name: "Ensure NFS utilities and rsync  are installed."
+  yum:
+    name: "{{ item }}"
+    state: "installed"
+    update_cache: "yes"
+  with_items:
+    - nfs-utils
+    - rsync
+
+- name: copy /etc/export
+  template:
+    src: "./roles/update_mirror_client/templates/exports.j2"
+    dest: "/etc/exports"
+    owner: "root"
+    group: "root"
+
+- name: restart nfs server
+  service:
+    name: nfs
+    state: restarted
+
+- name: "Create directory {{ base_dir }}"
+  file:
+    path: "{{ base_dir }}"
+    state: "directory"
+    recurse: "yes"
+
+- name: "Create subdirectory  in {{ base_dir }}"
+  file:
+    path: "{{ base_dir }}{{ item.mirror_dir }}"
+    state: "directory"
+    recurse: "yes"
+  with_items: "{{ mirrors }}"
+
+- name: "Create subdirectory  in {{ base_dir }} for keys"
+  file:
+    path: "{{ base_dir }}{{ item.mirror_key }}"
+    state: "directory"
+    recurse: "yes"
+  with_items: "{{ mirrors }}"
+
+- debug:
+    msg: "{{ mirrors }}"
+
+- name: "Synchronization of rpm repos"
+  shell: "rsync -avSHP -avSHP rsync:{{ item.origin_url }}  {{ base_dir }}{{ item.mirror_dir }}"
+  with_items: "{{ mirrors }}"
+
+- name: "Synchronization of pgp keys"
+  shell: "rsync -avSHP -avSHP rsync:{{ item.gpg_key }}  {{ base_dir }}{{ item.mirror_key }}"
+  with_items: "{{ mirrors }}"

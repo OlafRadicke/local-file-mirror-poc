@@ -1,0 +1,11 @@
+---
+base_dir: "/srv/mirrors"
+mirrors:
+  - origin_url: "//mirror.fra10.de.leaseweb.net/centos/7/os/x86_64/"
+    mirror_dir: "/centos/7/os/x86_64/"
+    gpg_key: "//mirror.liquidtelecom.com/centos/RPM-GPG-KEY-CentOS-7"
+    mirror_key: "/centos"
+  - origin_url: "//mirror.wbs.co.za/fedora-epel/7/x86_64/"
+    mirror_dir: "/epel/7/x86_64"
+    gpg_key: "//mirror.wbs.co.za/fedora-epel/RPM-GPG-KEY-EPEL-7"
+    mirror_key: "/epel"

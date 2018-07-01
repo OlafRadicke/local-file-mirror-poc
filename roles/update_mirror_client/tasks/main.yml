@@ -1,0 +1,41 @@
+---
+
+- name: "Create mountpoint"
+  file:
+    path: "{{ item.base_dir }}"
+    state: "directory"
+    recurse: "yes"
+    mode: 777
+    owner: "root"
+    group: "root"
+
+- name: "Ensure NFS utilities  are installed."
+  yum:
+    name: "{{ item }}"
+    state: "installed"
+    update_cache: "yes"
+  with_items:
+    - nfs-utils
+
+- name: set mountpoints
+  mount:
+    name: "{{ base_dir }}"
+    src: {{hostvars[groups['mirrors-server'][0]]['ansible_eth0']['ipv4']['address']}}:{{ base_dir }}"
+    fstype: "nfs"
+    opts: "defaults,nobootwait"
+    dump: 0
+    passno: 2
+    state: "mounted"
+
+- name: "Remove old repo confih"
+  file:
+    path: "/etc/yum.repos.d/*"
+    state: absent
+
+- name: "Add repository"
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.name }}"
+    baseurl: "file:/{{ item.base_dir }}{{ item.mirror_dir }}/$releasever/$basearch/"
+    gpgkey: "file:/{{ item.base_dir }}{{ item.mirror_key }}"
+  with_items: "{{ mirrors }}"
