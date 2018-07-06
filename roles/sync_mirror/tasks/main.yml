@@ -52,7 +52,15 @@
 - name: "Synchronization of rpm repos"
   shell: "rsync -avSHP -avSHP rsync:{{ item.origin_url }}  {{ base_dir }}{{ item.mirror_dir }}"
   with_items: "{{ mirrors }}"
+  register: rsync_info
+
+- debug:
+    msg: "{{ rsync_info }}"
 
 - name: "Synchronization of pgp keys"
   shell: "rsync -avSHP -avSHP rsync:{{ item.gpg_key }}  {{ base_dir }}{{ item.mirror_key }}"
   with_items: "{{ mirrors }}"
+  register: rsync_key_info
+
+- debug:
+    msg: "{{ rsync_key_info }}"
