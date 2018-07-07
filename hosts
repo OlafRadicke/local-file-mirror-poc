@@ -2,8 +2,8 @@
 
 
 [mirrors-server]
-mirror-01 ansible_host="192.168.122.43" ansible_user="root"
+mirror-01 ansible_host="192.168.122.28" ansible_user="root"
 
 
 [mirror-client]
-mirror-client-01 ansible_host="192.168.122.6" ansible_user="root"
+mirror-client-01 ansible_host="192.168.122.155" ansible_user="root"

@@ -2,12 +2,13 @@
 
 - name: "Create mountpoint"
   file:
-    path: "{{ item.base_dir }}"
+    path: "{{ base_dir }}"
     state: "directory"
     recurse: "yes"
     mode: 777
     owner: "root"
     group: "root"
+  ignore_errors: yes
 
 - name: "Ensure NFS utilities  are installed."
   yum:
@@ -18,27 +19,29 @@
     - nfs-utils
 
 - debug:
-    msg: "{{ hostvars[groups['mirrors-server'] }}"
+    msg: "Mirror IP: {{ hostvars['mirror-01']['ansible_all_ipv4_addresses'][0] }}"
 
-- name: set mountpoints
-  mount:
-    name: "{{ base_dir }}"
-    src: "{{hostvars[groups['mirrors-server']]}}:{{ base_dir }}"
-    fstype: "nfs"
-    opts: "defaults,nobootwait"
-    dump: 0
-    passno: 2
-    state: "mounted"
+- name: "Raw mount"
+  shell: "mount -v -t nfs -o ro {{ hostvars['mirror-01']['ansible_all_ipv4_addresses'][0] }}:/srv/mirrors/  /srv/mirrors/"
+  ignore_errors: yes
 
-- name: "Remove old repo confih"
-  file:
-    path: "/etc/yum.repos.d/*"
-    state: absent
+- name: "Remove old repo configs"
+  shell: "rm -f /etc/yum.repos.d/*.repo && rm -rf /var/cache/yum"
 
 - name: "Add repository"
   yum_repository:
     name: "{{ item.name }}"
     description: "{{ item.name }}"
-    baseurl: "file:/{{ item.base_dir }}{{ item.mirror_dir }}/$releasever/$basearch/"
-    gpgkey: "file:/{{ item.base_dir }}{{ item.mirror_key }}"
+    baseurl: "file://{{ base_dir }}{{ item.mirror_dir }}"
+    gpgkey: "file://{{ base_dir }}{{ item.mirror_key }}"
   with_items: "{{ mirrors }}"
+
+- name: "System update"
+  shell: "yum clean all && yum -y update"
+  register: yum_info
+
+- debug:
+    msg: "{{ yum_info }}"
+
+# - name: "Raw umount"
+#   shell: "umount  /srv/mirrors/"
