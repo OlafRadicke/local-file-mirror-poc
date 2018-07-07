@@ -17,10 +17,13 @@
   with_items:
     - nfs-utils
 
+- debug:
+    msg: "{{ hostvars[groups['mirrors-server'] }}"
+
 - name: set mountpoints
   mount:
     name: "{{ base_dir }}"
-    src: {{hostvars[groups['mirrors-server'][0]]['ansible_eth0']['ipv4']['address']}}:{{ base_dir }}"
+    src: "{{hostvars[groups['mirrors-server']]}}:{{ base_dir }}"
     fstype: "nfs"
     opts: "defaults,nobootwait"
     dump: 0
